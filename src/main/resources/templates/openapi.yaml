@@ -1,0 +1,1408 @@
+openapi: 3.0.3
+info:
+  title: Swagger lokapi - OpenAPI 3.0
+  description: ''
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: tawfik.elyousfi@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: https://test.swagger.io/api/v3
+tags:
+  - name: user
+    description: Everything about your Users
+    externalDocs:
+      description: Find out more
+      url: http://swagger.io
+  - name: lease
+    description: Operations about leasing
+    externalDocs:
+      description: Find out more
+      url: http://swagger.io
+  - name: property
+    description: operations about properties
+    externalDocs:
+      description: Find out more
+      url: http://swagger.io
+  - name: auth
+    description: Everything about your Authentifications
+    externalDocs:
+      description: Find out more
+      url: http://swagger.io
+  - name: file
+    description: Everything about your Authentifications
+    externalDocs:
+      description: Find out more
+      url: http://swagger.io
+paths:
+  /file/preview/{filename}:
+    get:
+      tags:
+        - File
+      summary: Preview a file directly without downloading it
+      description: Streams a file as a binary resource for preview.
+      operationId: previewFile
+      parameters:
+        - name: filename
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The name of the file to preview.
+      responses:
+        '200':
+          description: The file was successfully streamed for preview.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+              example: "Binary content for preview"
+        '404':
+          description: File not found on the server.
+        '500':
+          description: Server error while processing the file.
+
+
+  /file/download/{filename}:
+    get:
+      tags:
+        - file
+      summary: Download a file from the server
+      operationId: downloadFile
+      parameters:
+        - name: filename
+          in: query
+          required: true
+          schema:
+            type: string
+          description: File name
+      responses:
+        200:
+          description: File downloaded successfully
+          content:
+            application/octet-stream:  # MIME type pour indiquer un fichier binaire
+              schema:
+                type: string
+                format: binary  # Indique que la réponse est un fichier binaire
+        400:
+          description: Invalid parameters or file not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+
+  /file/upload:
+    post:
+      tags:
+        - file
+      summary: Upload files from application
+      operationId: uploadFile
+      parameters:
+        - name: owner
+          in: query
+          required: true
+          schema:
+            type: string
+          description: L'ID du propriétaire (owner)
+        - name: tenant
+          in: query
+          required: true
+          schema:
+            type: string
+          description: L'ID du locataire (tenant)
+        - name: property
+          in: query
+          required: true
+          schema:
+            type: string
+          description: L'adresse de la propriété (property)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Le fichier PDF à uploader.
+              required:
+                - file
+      responses:
+        default:
+          description: Fichier uploadé avec succès
+          content:
+            application/json:
+              schema:
+                type: string
+
+        '400':
+          description: Aucun fichier sélectionné ou mauvaise requête
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Aucun fichier sélectionné.
+        '415':
+          description: Mauvais type de fichier
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Seuls les fichiers PDF sont acceptés.
+        '500':
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Erreur lors de l'enregistrement du fichier.
+
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: Register a new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: 'newUser'
+                email:
+                  type: string
+                  example: 'newuser@email.com'
+                password:
+                  type: string
+                  example: 'securePassword123'
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - OWNER
+                      - TENANT
+                  example:
+                    - TENANT
+                    - OWNER
+                  description: tenant or owner status in application
+      responses:
+        default:
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMessageResponse'
+        '400':
+          description: Invalid input
+
+  /auth/infoUser/{id}:
+    get:
+      tags:
+        - auth
+      summary: Getinf from user
+      operationId: infoUser
+      parameters:
+        - name: userId
+          in: path
+          description: 'The id that needs to be fetched. Use user for testing. '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: 'User authenticated successfully returned'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'Get info failed'
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Authenticate a user
+      operationId: authenticateUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: 'username'
+                email:
+                  type: string
+                  example: 'email@email.com'
+                password:
+                  type: string
+                  example: 'securePassword123'
+      responses:
+        default:
+          description: 'User authenticated successfully token returned'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        '400':
+          description: 'Authentication failed'
+  /auth/activate:
+    get:
+      tags:
+        - auth
+      summary: Activate a user registered
+      operationId: activateUser
+      parameters:
+        - name: token
+          in: path
+          description: 'Token to activate the user '
+          required: true
+          schema:
+            type: string
+      #requestBody:
+      #  required: true
+      #  content:
+      #    application/json:
+      #      schema:
+      #        type: object
+      #        properties:
+      #          token:
+      #            type: string
+      #            example: 'a1b2c3d4e5f6g7h8i9j0'*/
+      responses:
+        default:
+          description: Message User actived successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Authentication failed
+
+
+
+
+  /users:
+    get:
+      tags:
+        - user
+      summary: Get all Users
+      operationId: getAllUsers
+      responses:
+        default:
+          description: List of Users received with success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: Users not found
+    post:
+      tags:
+        - user
+      summary: Create user
+      description: This can only be done by the logged in user.
+      operationId: createUser
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      tags:
+        - user
+      summary: update user
+      description: This can only be done by the logged in user.
+      operationId: updateUser
+      requestBody:
+        description: update user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      description: This can only be done by the logged in user.
+      operationId: deleteUser
+      requestBody:
+        description: Deleted user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/{userId}:
+    get:
+      tags:
+        - user
+      summary: Get user by user Id
+      description: ''
+      operationId: getUserById
+      parameters:
+        - name: userId
+          in: path
+          description: 'The id that needs to be fetched. Use user1 for testing. '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: User not found
+    put:
+      tags:
+        - user
+      summary: Update user
+      description: This can only be done by the logged in user.
+      operationId: updateUserById
+      parameters:
+        - name: userId
+          in: path
+          description: ID that need to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      #requestBody:
+      #  description: Update an existent user in the store
+      #  content:
+      #    application/json:
+      #      schema:
+      #        $ref: '#/components/schemas/User'
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      description: This can only be done by the logged in user.
+      operationId: deleteUserById
+      parameters:
+        - name: userId
+          in: path
+          description: The ID that needs to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: User not found
+
+  /users/{username}:
+    get:
+      tags:
+        - user
+      summary: Get user by user name
+      description: ''
+      operationId: getUserByName
+      parameters:
+        - name: username
+          in: path
+          description: 'The name that needs to be fetched. Use user1 for testing. '
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid username supplied
+        '404':
+          description: User not found
+
+  /users/{email}:
+    get:
+      tags:
+        - user
+      summary: Get user by user name
+      description: ''
+      operationId: getUserByEmail
+      parameters:
+        - name: email
+          in: path
+          description: 'The email that needs to be fetched. Use user1 for testing. '
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid email supplied
+        '404':
+          description: User not found
+
+  /users/{emailOrUsername}:
+    get:
+      tags:
+        - user
+      summary: Get user by user name
+      description: ''
+      operationId: getUserByIdentifiant
+      parameters:
+        - name: emailOrUsername
+          in: path
+          description: 'The email or username that needs to be fetched. Use user1 for testing. '
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid email supplied
+        '404':
+          description: User not found
+
+  /users/{existingEmailOrUsername}:
+    get:
+      tags:
+        - user
+      summary: Check if user is registered
+      description: ''
+      operationId: isUserByIdentifiantRegistered
+      parameters:
+        - name: existingEmailOrUsername
+          in: path
+          description: 'The email or username that needs to be fetched. check if user is existing. '
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+  /users/{ownerId}:
+    get:
+      tags:
+        - user
+      summary: Get tenant from an owner
+      description: ''
+      operationId: getTenantByOwner
+      parameters:
+        - name: ownerId
+          in: path
+          description: 'Ge all tenants of the owner logged '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid email supplied
+        '404':
+          description: User not found
+
+  /properties:
+    get:
+      tags:
+        - property
+      summary: Get all properties
+      operationId: getAllProperties
+      responses:
+        '200':
+          description: List of properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Property'
+    post:
+      tags:
+        - property
+      summary: Create a new property
+      description: creation of a new property.
+      operationId: createProperty
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Property'
+      responses:
+        default:
+          description: Property created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+    put:
+      tags:
+        - property
+      summary: Update property
+      description: update property existing
+      operationId: updateProperty
+      parameters:
+        - name: propertyId
+          in: path
+          description: ID that need to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: User not found
+    delete:
+      tags:
+        - property
+      summary: Delete property by ID
+      description: delete property .
+      operationId: deleteProperty
+      parameters:
+        - name: propertyId
+          in: path
+          description: The ID that needs to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: User not found
+
+  /properties/{ownerId}:
+    get:
+      tags:
+        - property
+      summary: Get property by owner ID
+      description: ''
+      operationId: getPropertyByOwnerId
+      parameters:
+        - name: ownerId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Property'
+
+  /properties/{ownerId}/addresses:
+    get:
+      tags:
+        - property
+      summary: Get property addresses by owner ID
+      operationId: getAddressPropertyByOwnerId
+      parameters:
+        - name: ownerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    address:
+                      type: string
+                    city:
+                      type: string
+                    zip:
+                      type: string
+
+  /properties/{propertyId}:
+    get:
+      tags:
+        - property
+      summary: Get property by property Id
+      description: ''
+      operationId: getPropertyById
+      parameters:
+        - name: propertyId
+          in: path
+          description: 'The id that needs to be fetched. Use property1 for testing. '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Property not found
+
+  /properties/{propertyId}/lease:
+    get:
+      tags:
+        - property
+      summary: Get property by property Id
+      description: ''
+      operationId: getPropertyWithLeaseById
+      parameters:
+        - name: propertyId
+          in: path
+          description: 'Details of property with lease attached  '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Property not found
+
+  /leases:
+    get:
+      tags:
+        - lease
+      summary: Get all leases
+      operationId: getAllLeases
+      responses:
+        default:
+          description: List of leases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lease'
+    post:
+      tags:
+        - lease
+      summary: Create lease
+      description: This can only be done by the logged in user.
+      operationId: createLease
+      requestBody:
+        description: Created lease object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lease'
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lease'
+    put:
+      tags:
+        - lease
+      summary: update lease
+      description: ''
+      operationId: updateLease
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lease'
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lease'
+
+    delete:
+      tags:
+        - lease
+      summary: delete lease
+      description: 'Delete add a date in delete date'
+      operationId: deleteLease
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lease'
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lease'
+
+  /leases/{leaseId}:
+    get:
+      tags:
+        - lease
+      summary: Get lease by ID
+      description: ''
+      operationId: getLeaseById
+      parameters:
+        - name: leaseId
+          in: path
+          description: 'The ID needs to be fetched '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lease'
+  /leases/{tenantId}:
+    get:
+      tags:
+        - lease
+      summary: Get lease by tenantId
+      description: ''
+      operationId: getLeaseByTenantId
+      parameters:
+        - name: tenantId
+          in: path
+          description: 'The tenantId needs to be fetched '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lease'
+  /leases/{ownerId}/{tenantId}:
+    get:
+      tags:
+        - lease
+      summary: Get lease by tenantId
+      description: ''
+      operationId: getLeaseByOwnerIdAndTenantId
+      parameters:
+        - name: ownerId
+          in: path
+          description: 'The ownerId needs to be fetched '
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tenantId
+          in: path
+          description: 'The tenantId needs to be fetched '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lease'
+  /leases/{ownerId}:
+    get:
+      tags:
+        - lease
+      summary: Get lease by ownerId
+      description: ''
+      operationId: getLeaseByOwnerId
+      parameters:
+        - name: ownerId
+          in: path
+          description: 'The ownerId needs to be fetched '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lease'
+
+
+
+  /payments:
+    get:
+      tags:
+        - payments
+      summary: Get all Payments
+      operationId: getPayments
+      responses:
+        '200':
+          description: List of Payments received with success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+        '404':
+          description: Payments not found
+    post:
+      tags:
+        - payments
+      summary: Record a new payment
+      operationId: createPayment
+      requestBody:
+        description: Created payment object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+
+  /payments/{tenantId}:
+    get:
+      tags:
+        - payments
+      summary: Get payments by tenants Id
+      description: ''
+      operationId: getPaymentsByTenantId
+      parameters:
+        - name: tenantId
+          in: path
+          description: 'The tenantId needs to be fetched '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+  /payments/{ownerId}:
+    get:
+      tags:
+        - payments
+      summary: Get payments by tenants Id
+      description: ''
+      operationId: getPaymentsByOwnerId
+      parameters:
+        - name: ownerId
+          in: path
+          description: 'The ownerId needs to be fetched '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+  /payments/{date}:
+    get:
+      tags:
+        - payments
+      summary: Get payments by date
+      description: ''
+      operationId: getPaymentsByDate
+      parameters:
+        - name: date
+          in: path
+          description: 'The date needs to be fetched '
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        default:
+          description: 'successful operation'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+  /payments/{paymentId}:
+    get:
+      tags:
+        - payments
+      summary: Get user by user Id
+      description: ''
+      operationId: getPaymentById
+      parameters:
+        - name: paymentId
+          in: path
+          description: 'The id that needs to be fetched. Use user1 for testing. '
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Payment not found
+    put:
+      tags:
+        - payment
+      summary: Update payment
+      description: This can only be done by the logged in payment.
+      operationId: updatePayment
+      parameters:
+        - name: paymentId
+          in: path
+          description: ID that need to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      #requestBody:
+      #  description: Update an existent user in the store
+      #  content:
+      #    application/json:
+      #      schema:
+      #        $ref: '#/components/schemas/User'
+      responses:
+        default:
+          description: successful operation
+
+    delete:
+      tags:
+        - payment
+      summary: Delete payment
+      description: This can only be done by the logged in payment.
+      operationId: deletePayment
+      parameters:
+        - name: paymentId
+          in: path
+          description: The ID that needs to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: User not found
+
+
+
+components:
+  schemas:
+    UserMessageResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        message:
+          type: string
+      required:
+        - message
+
+    AuthToken:
+      type: object
+      properties:
+        token:
+          type: string
+          description: "JWT Token"
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e..."
+        message:
+          type: string
+          description: "Message comportement"
+          example: "message d'information"
+        user:
+          $ref: '#/components/schemas/User'
+
+    ActivationToken:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 11
+          description: Token id
+        token:
+          type: string
+          example: 'a1b2c3d4e5f6g7h8i9j0'
+        expirationDate:
+          type: string
+          format: date
+          example: '2024-10-19T23:21:35Z'
+        userId:
+          type: integer
+          format: int64
+          example: 123
+      required:
+        - token
+        - expirationDate
+        - userId
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        username:
+          type: string
+          example: 'theUser'
+        email:
+          type: string
+          example: 'you@email.com'
+        password:
+          type: string
+          example: '12345'
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+              - OWNER
+              - TENANT
+          example:
+            - TENANT
+            - OWNER
+          description: tenant or owner status in application
+
+        active:
+            type: boolean
+            example: 1
+        creationDate:
+          type: string
+          format: date
+          description: User creation date
+        updateDate:
+          type: string
+          format: date
+          description: User update date
+        deleteDate:
+          type: string
+          format: date
+          description: User detele date
+      required:
+        - id
+        - username
+        - email
+        - password
+        - roles
+
+    Property:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Property ID unique
+        address:
+          type: string
+          description: Property adress
+        city:
+          type: string
+          description: Property city
+        zip:
+          type: string
+          description: Property zip
+        description:
+          type: string
+          description: Property description
+        owner:
+          $ref: '#/components/schemas/User'
+        lease:
+          $ref: '#/components/schemas/Lease'
+        price:
+          type: number
+          format: decimal
+        creationDate:
+          type: string
+          format: date
+          description: Property creation date
+        updateDate:
+          type: string
+          format: date
+          description: Property update date
+        deleteDate:
+          type: string
+          format: date
+          description: Property detele date
+      required:
+        - id
+        - adress
+        - owner
+        - city
+        - zip
+        - creationDate
+        - updateDate
+
+    Lease:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Lease
+        property:
+          $ref: '#/components/schemas/Property'
+        tenant:
+          $ref: '#/components/schemas/User'
+        owner:
+          $ref: '#/components/schemas/User'
+        startDate:
+          type: string
+          format: date
+          description: Date start of lease
+        endDate:
+          type: string
+          format: date
+          description: Date end of lease  (null if empty)
+        rentAmount:
+          type: number
+          format: decimal
+          description: rent amount
+        depositAmount:
+          type: number
+          format: decimal
+          description: desposit amount
+        contract:
+          type: string
+          description: Lease Contrat PDF ( bail )
+        creationDate:
+          type: string
+          format: date
+          description: Lease creation date
+        deleteDate:
+          type: string
+          format: date
+          description: Lease delete date  NULL if not deleted
+        updateDate:
+          type: string
+          format: date
+          description: Lease update date can be same on creation date
+        deleteDate:
+          type: string
+          format: date
+          description: Lease delete date can be null
+      required:
+        - id
+        - property
+        - tenant
+        - startDate
+        - rentAmount
+        - contract
+        - creationDate
+        - updateDate
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Payment id
+        leaseId:
+          type: integer
+          format: int64
+          description: Lease id
+        paymentDate:
+          type: string
+          format: date
+          description: Payment date
+        amount:
+          type: number
+          format: decimal
+        commission:
+          type: number
+          format: decimal
+        paymentStatus:
+          type: string
+          example: PAID
+          description: Payment Status can be paid or not
+          enum:
+            - PAID
+            - PENDING
+            - FAILED
+        creationDate:
+          type: string
+          format: date
+          description: Payment creation date
+        deleteDate:
+          type: string
+          format: date
+          description: Payment delete date  NULL if not deleted
+        updateDate:
+          type: string
+          format: date
+          description: Payment update date can be same on creation date
+      required:
+        - id
+        - lease
+        - paymentDate
+        - amount
+        - paymentStatus
+        - creationDate
+        - updateDate
+
+

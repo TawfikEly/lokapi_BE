@@ -3,6 +3,7 @@ package be.lokapi.controller;
 import be.lokapi.api.FileApi;
 
 import be.lokapi.utils.Constantes;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +21,7 @@ import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/file")
+//@CrossOrigin(origins = Constantes.HTTP_ORIGIN_FRONT_CHROME) // CORS voir webConfig.java
 public class FileController implements FileApi {
 
     private static final String UPLOAD_DIR = "uploads/";
@@ -48,26 +50,28 @@ public class FileController implements FileApi {
     }
 
     @Override
-    @GetMapping("/preview/**")
+    @GetMapping("/preview")
     public ResponseEntity<Resource> previewFile(@RequestParam("filename") String filename) {
-        System.out.println(filename);
         try {
-            Path file = Paths.get(Constantes.FILE_PATH_SERVER).resolve(filename).normalize();
-            Resource resource = new UrlResource(file.toUri());
+            Path file = Paths.get(Constantes.FILE_PATH_SERVER).resolve(filename.trim()).normalize();
+
+            FileSystemResource resource = new FileSystemResource(file);
+
             if (resource.exists() && resource.isReadable()) {
-                return ResponseEntity.notFound().build();
-            }
+                String contentType = "application/octet-stream";
+                if (filename.endsWith(".pdf")) {
+                    contentType = "application/pdf";
+                }
 
-            String contentType = "application/octet-stream";
-            if (filename.endsWith(".pdf")) {
-                contentType = "application/pdf";
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .body(resource);
             }
+            return ResponseEntity.notFound().build();
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .body(resource);
-        }catch(IOException e) {
+
+        }catch(Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
@@ -97,7 +101,7 @@ public class FileController implements FileApi {
             }
 
             // Enregistre le fichier sur le disque
-            Path filePath = uploadPath.resolve(file.getOriginalFilename());
+            Path filePath = uploadPath.resolve(file.getOriginalFilename().trim());
             Files.write(filePath, file.getBytes());
 
             return ResponseEntity.status(HttpStatus.OK).body(filePath.toString());

@@ -2,7 +2,7 @@ package be.lokapi.utils;
 
 public class Constantes {
 
-    public static final String HTTP_ORIGIN_FRONT_CHROME = "http://localhost:59999";//via FLUTTER CHROME
+    public static final String HTTP_ORIGIN_FRONT_CHROME = "http://localhost:55222";//via FLUTTER CHROME
     public static final String HTTP_ORIGIN_FRONT_MACOS = "http://localhost:59999";//via FLUTTER MACOS
     public static final String LOCALHOST = "localhost";
 

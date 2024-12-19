@@ -52,11 +52,11 @@ public class AuthController  implements AuthApi {
             return ResponseEntity.ok(userMessageResponseDTO);
 
         } catch (EmailAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new UserMessageResponseDTO(null, "L'email existe déjà."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new UserMessageResponseDTO(null, "L'email existe déjà."));
         } catch (UsernameAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new UserMessageResponseDTO(null, "Le nom d'utilisateur existe déjà."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new UserMessageResponseDTO(null, "Le nom d'utilisateur existe déjà."));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new UserMessageResponseDTO(null, "Une erreur est survenue lors de l'inscription."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new UserMessageResponseDTO(null, "Une erreur est survenue lors de l'inscription."));
         }
     }
 

@@ -23,6 +23,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -143,23 +144,33 @@ public class UserServiceImpl implements IUserService, IActivationTokenService {
     @Override
     public AuthToken authenticateUser(AuthenticateUserRequest authenticateUserRequest) {
         //permet de se logger avec le username ou l'email
-        String userName = this.findByIdentifier(authenticateUserRequest.getUsername()).get().getUsername();
-        authenticateUserRequest.setUsername(userName);
-
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(authenticateUserRequest.getUsername(), authenticateUserRequest.getPassword());
-        Authentication authentication = null;
         try {
+            String userName = this.findByIdentifier(authenticateUserRequest.getUsername()).get().getUsername();
+            authenticateUserRequest.setUsername(userName);
+
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(authenticateUserRequest.getUsername(), authenticateUserRequest.getPassword());
+
+            Authentication authentication = null;
+
             authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+        }catch (UsernameNotFoundException e){
+            throw new UsernameNotFoundException("L'dentifiant est incorrect, veuillez réessayer.");
         } catch (BadCredentialsException e) {
             // Gérer les mauvais identifiants
-            throw new RuntimeException("Les identifiants sont incorrects, veuillez réessayer.");
+            throw new BadCredentialsException("Les identifiants sont incorrects, veuillez réessayer.");
         } catch (DisabledException e) {
             // Gérer le cas où l'utilisateur est désactivé
-            throw new RuntimeException("Votre compte est désactivé. Veuillez contacter l'administrateur.");
-        } catch (Exception e) {
+            throw new DisabledException("Votre compte est désactivé. Veuillez contacter l'administrateur.");
+
+        } catch (NullPointerException e) {// le findByIdentifier returne null car rien trouvé
+        // Gérer le cas où l'utilisateur est désactivé
+            throw new UsernameNotFoundException("L'dentifiant est incorrect, veuillez réessayer.");
+        }
+
+        /* } catch (Exception e) {
             // Gérer les autres types d'exception
             throw new RuntimeException("Erreur lors de l'authentification. Veuillez réessayer.");
-        }
+        }*/
 
 
         try {
@@ -168,7 +179,7 @@ public class UserServiceImpl implements IUserService, IActivationTokenService {
             String jwt = jwtTokenUtil.generationToken(userDetails);
             logger.debug(userDetails.getUsername()+" is logged at "+ System.currentTimeMillis());
 
-//a verifier le roles si bespon ici en fin
+            //a verifier le roles si bespon ici en fin
             UserDTO userDTO = new UserDTO(null,authenticateUserRequest.getUsername(),authenticateUserRequest.getEmail(),authenticateUserRequest.getPassword(),null);
 
             return new AuthToken(jwt,userDetails.getUsername()+" is logged at "+ System.currentTimeMillis(),userDTO);

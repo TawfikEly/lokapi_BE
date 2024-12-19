@@ -31,7 +31,7 @@ public class LoginServiceTest {
     private JwtTokenUtil jwtTokenUtil;
 
     @InjectMocks
-    private UserServiceImpl userService; // Remplacez par le nom de votre service d'utilisateur
+    private UserServiceImpl userService;
 
 
 

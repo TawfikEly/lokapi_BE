@@ -15,6 +15,10 @@ import be.lokapi.utils.Constantes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -93,34 +97,46 @@ public class AuthController  implements AuthApi {
     @Override
     @PostMapping("/login")
     public ResponseEntity<AuthTokenDTO> authenticateUser(@RequestBody AuthenticateUserRequestDTO authenticateUserRequestDTO) {
+        try {
+            AuthToken jwt = userService.authenticateUser(AuthenticateUserRequest.fromDTO(authenticateUserRequestDTO));
+            if (jwt != null) {
+                Optional<User> user = userService.getUserByName(jwt.getUser().getUsername());
+                if (!userService.isUSerActivated(user.get())) {
+                    // Cas où l'authentification échoué (si le le user n'est pas encore actif)
+                    AuthTokenDTO authTokenDTO = new AuthTokenDTO("", "Votre compte n'est pas actif verifiez vos mails et activez votre compte", null);
+                    return ResponseEntity.badRequest().body(authTokenDTO);
+                } else {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("token", jwt.getToken());
+                    response.put("user", Map.of("username", user.get().getUsername(), "email", user.get().getEmail()));
 
-        AuthToken jwt = userService.authenticateUser(AuthenticateUserRequest.fromDTO(authenticateUserRequestDTO));
-        if(jwt != null) {
-            Optional<User> user = userService.getUserByName(jwt.getUser().getUsername());
-            if(!userService.isUSerActivated(user.get())) {
-                // Cas où l'authentification échoué (si le le user n'est pas encore actif)
-                AuthTokenDTO authTokenDTO = new AuthTokenDTO("", "Votre compte n'est pas actif verifiez vos mails et activez votre compte",null);
-                return ResponseEntity.badRequest().body(authTokenDTO);
-            }else{
-                Map<String, Object> response = new HashMap<>();
-                response.put("token", jwt.getToken());
-                response.put("user", Map.of(
-                        "username", user.get().getUsername(),
-                        "email", user.get().getEmail()
-                ));
-
-                String token = response.get("token").toString();
-
-                UserDTO userDTO = new UserDTO(user.get().getId(), user.get().getUsername(), user.get().getEmail(), user.get().getPassword(),userMapper.mapRoles(user.get().getRoles()));
-
-                AuthTokenDTO authTokenDTO = new AuthTokenDTO(token,"User registered successfully",userDTO );
-
-                return ResponseEntity.ok(authTokenDTO);
+                    UserDTO userDTO = new UserDTO(user.get().getId(), user.get().getUsername(), user.get().getEmail(), user.get().getPassword(), userMapper.mapRoles(user.get().getRoles()));
+                    AuthTokenDTO authTokenDTO = new AuthTokenDTO(response.get("token").toString(), "User registered successfully", userDTO);
+                    return ResponseEntity.ok(authTokenDTO);
+                }
+            } else {
+                return ResponseEntity.notFound().build();
             }
-
-
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    new AuthTokenDTO("", "Identifiant incorrect.", null)
+            );
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    new AuthTokenDTO("", "Mot de passe incorrect.", null)
+            );
+        } catch (DisabledException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    new AuthTokenDTO("", "Votre compte est désactivé. Veuillez contacter l'administrateur.", null)
+            );
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    new AuthTokenDTO("", "Identifiant incorrect.", null)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new AuthTokenDTO("", "Erreur lors de l'authentification. Veuillez reessayer plus tard.", null)
+            );
         }
     }
 

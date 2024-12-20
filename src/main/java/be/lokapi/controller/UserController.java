@@ -44,12 +44,10 @@ public class UserController implements UsersApi {
     @Override
     @GetMapping("/getUserByEmail/{email}")
     public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
-        //Optional<User> user =  userService.findByIdentifier(email);
-        Optional<User> user  = userService.getUserByEmail(email);
-        if (user !=  null)
-            return ResponseEntity.ok().build();
-
-        return ResponseEntity.badRequest().build();
+        UserDTO userDTO  = userService.getUserByEmail(email);
+        if (userDTO !=  null)
+            return ResponseEntity.ok(userDTO);
+        return ResponseEntity.notFound().build();
     }
 
 
@@ -57,10 +55,9 @@ public class UserController implements UsersApi {
     @GetMapping("/getUserById/{userId}")
     public ResponseEntity<UserDTO> getUserById(Long userId) {
         UserDTO userDTO  = userService.getUserById(userId);
-
         if (userDTO !=  null)
-            return ResponseEntity.ok().build();
-        return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok(userDTO);
+        return ResponseEntity.notFound().build();
     }
 
     @Override

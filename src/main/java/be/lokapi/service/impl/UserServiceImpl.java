@@ -235,8 +235,13 @@ public class UserServiceImpl implements IUserService, IActivationTokenService {
     }
 
     @Override
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findUserByEmail(email);
+    public UserDTO getUserByEmail(String email) {
+        Optional<User> user = userRepository.findUserByEmail(email);
+
+        if(!user.isEmpty()) {
+            return userMapper.toDto(user.get());
+        }
+        return null;
     }
 
     @Override

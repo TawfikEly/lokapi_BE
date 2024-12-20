@@ -6,6 +6,9 @@ import be.lokapi.model.PropertyDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 @Mapper(componentModel = "spring")
 public interface PropertyMapper {
 
@@ -41,7 +44,12 @@ public interface PropertyMapper {
                 .updateDate(property.getUpdateDate())
                 .deleteDate(property.getDeleteDate())
                 .owner(UserMapper.INSTANCE.toDto(property.getOwner()))
-                .lease(LeaseMapper.INSTANCE.toDto(property.getLease()))
+                .leases(property.getLeases()!=null
+                        ? property.getLeases().stream()
+                            .map(LeaseMapper.INSTANCE::toDto)
+                            .collect(Collectors.toList())
+                        : new ArrayList<>()
+                )
                 .build();
 
     }

@@ -25,7 +25,7 @@ public interface IUserService {
     List<User> getAllUsers();
     UserDTO getUserById(Long userId);
     Optional<UserDTO> findByIdentifier(String identifier);
-    Optional<User> getUserByEmail(String email);
+    UserDTO getUserByEmail(String email);
 
     Optional<User> getUserByName(String userName);
     User updateUserById(Long userId);

@@ -3,6 +3,7 @@ package be.lokapi.service.impl;
 import be.lokapi.entity.Lease;
 import be.lokapi.entity.User;
 import be.lokapi.mapping.LeaseMapper;
+import be.lokapi.mapping.LeaseMapperUtil;
 import be.lokapi.mapping.UserMapper;
 import be.lokapi.model.LeaseDTO;
 import be.lokapi.model.UserDTO;
@@ -24,11 +25,13 @@ public class LeaseServiceImpl implements ILeaseService {
     private ILeaseRepository leaseRepository;
     private final UserMapper userMapper;
     private final LeaseMapper leaseMapper;
+    private final LeaseMapperUtil leaseMapperUtil;
 
-    public LeaseServiceImpl(UserMapper userMapper, ILeaseRepository leaseRepository, LeaseMapper leaseMapper) {
+    public LeaseServiceImpl(UserMapper userMapper, ILeaseRepository leaseRepository, LeaseMapper leaseMapper, LeaseMapperUtil leaseMapperUtil) {
         this.userMapper = userMapper;
         this.leaseRepository = leaseRepository;
         this.leaseMapper = leaseMapper;
+        this.leaseMapperUtil = leaseMapperUtil;
     }
 
 
@@ -54,7 +57,9 @@ public class LeaseServiceImpl implements ILeaseService {
 
     @Override
     public List<LeaseDTO> getLeaseByOwnerId(Long ownerId) {
-        return leaseRepository.getLeaseByOwnerId(ownerId).stream().map(leaseMapper::toDto).collect(Collectors.toList());
+        List<Lease> leases = leaseRepository.getLeaseByOwnerId(ownerId);
+        List<LeaseDTO> leasesDTO = leases.stream().map(leaseMapperUtil::toDto).collect(Collectors.toList());
+        return leasesDTO;
     }
 
     @Override

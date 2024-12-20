@@ -24,9 +24,10 @@ public class Lease {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "property_id", nullable = false)
     private Property property;
+
 
     @ManyToOne
     @JoinColumn(name = "tenant_id", nullable = false)

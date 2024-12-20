@@ -1,0 +1,7 @@
+TODO List
+
+- ameliorer la page contrat detail ajouter les valeur manquante
+- ajouter sur la page detail tenant un bouton pour envoyer un mail
+- verifier la page tenant si complet
+- analyser concept de notification ( mail ou autre )
+

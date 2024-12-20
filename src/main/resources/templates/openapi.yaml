@@ -1216,6 +1216,12 @@ components:
         password:
           type: string
           example: '12345'
+        firstname:
+          type: string
+          example: 'John'
+        lastname:
+          type: string
+          example: 'Doe'
         roles:
           type: array
           items:
@@ -1271,8 +1277,10 @@ components:
           description: Property description
         owner:
           $ref: '#/components/schemas/User'
-        lease:
-          $ref: '#/components/schemas/Lease'
+        leases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lease'
         price:
           type: number
           format: decimal

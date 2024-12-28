@@ -44,11 +44,11 @@ public class UserRepositoryTest {
         when(userRepository.findUserByEmail("test@example.com")).thenReturn(Optional.of(user));
 
         // Act
-        Optional<User> result = userService.getUserByEmail("test@example.com");
+        UserDTO result = userService.getUserByEmail("test@example.com");
 
         // Assert
-        assertThat(result).isPresent();
-        assertThat(result.get().getEmail()).isEqualTo("test@example.com");
+        assertThat(result);
+        assertThat(result.getEmail()).isEqualTo("test@example.com");
         verify(userRepository, times(1)).findUserByEmail("test@example.com");
     }
 

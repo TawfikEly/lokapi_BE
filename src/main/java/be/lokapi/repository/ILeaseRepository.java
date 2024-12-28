@@ -22,6 +22,9 @@ public interface ILeaseRepository extends JpaRepository<Lease, Long> {
     @Query("SELECT l.tenant FROM Lease l JOIN l.property p WHERE p.owner.id = :ownerId")
     List<User> getTenantsByOwner(@Param("ownerId") Long ownerId);
 
-    @Query("SELECT l FROM Lease l WHERE l.owner.id = :ownerId")
+
+    @Query("SELECT l FROM Lease l LEFT JOIN FETCH l.property WHERE l.owner.id = :ownerId")
     List<Lease> getLeaseByOwnerId(@Param("ownerId") Long ownerId);
+
+
 }

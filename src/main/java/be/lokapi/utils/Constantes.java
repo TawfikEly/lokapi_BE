@@ -2,11 +2,11 @@ package be.lokapi.utils;
 
 public class Constantes {
 
-    public static final String HTTP_ORIGIN_FRONT_CHROME = "http://localhost:59999";//via FLUTTER CHROME
+    public static final String HTTP_ORIGIN_FRONT_CHROME = "http://localhost:55222";//via FLUTTER CHROME
     public static final String HTTP_ORIGIN_FRONT_MACOS = "http://localhost:59999";//via FLUTTER MACOS
     public static final String LOCALHOST = "localhost";
 
-        public static final String ACTVATION_URL = "http://localhost:8080/api/auth/activate?token=";
+    public static final String ACTVATION_URL = "http://localhost:8080/api/auth/activate?token=";
     public static final String GET = "GET";
     public static final String PUT = "PUT";
     public static final String DELETE = "DELETE";
@@ -21,6 +21,9 @@ public class Constantes {
     public static final String EMAIL_SMTP_ICLOUD="smtp.mail.me.com";
 
     public static final String FILE_PATH_SERVER="/Users/tawfik/workspace/lokapi/Back-End";
+
+    public static final String UPLOAD_DIR = "uploads/";
+    public static final String UPLOAD_DIR_FRONT = "../frontend/assets/picturesProfiles";
 
 
 

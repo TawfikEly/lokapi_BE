@@ -2,7 +2,11 @@ package be.lokapi.controller;
 
 import be.lokapi.api.FileApi;
 
+import be.lokapi.service.IFileService;
 import be.lokapi.utils.Constantes;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -18,11 +22,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 
+
 @RestController
 @RequestMapping("/api/file")
+//@CrossOrigin(origins = Constantes.HTTP_ORIGIN_FRONT_CHROME) // CORS voir webConfig.java
 public class FileController implements FileApi {
 
-    private static final String UPLOAD_DIR = "uploads/";
+
+    private final IFileService fileService;
+
+
+    public FileController(IFileService fileService) {
+        this.fileService = fileService;
+    }
 
 
 
@@ -48,26 +60,28 @@ public class FileController implements FileApi {
     }
 
     @Override
-    @GetMapping("/preview/**")
+    @GetMapping("/preview")
     public ResponseEntity<Resource> previewFile(@RequestParam("filename") String filename) {
-        System.out.println(filename);
         try {
-            Path file = Paths.get(Constantes.FILE_PATH_SERVER).resolve(filename).normalize();
-            Resource resource = new UrlResource(file.toUri());
+            Path file = Paths.get(Constantes.FILE_PATH_SERVER).resolve(filename.trim()).normalize();
+
+            FileSystemResource resource = new FileSystemResource(file);
+
             if (resource.exists() && resource.isReadable()) {
-                return ResponseEntity.notFound().build();
-            }
+                String contentType = "application/octet-stream";
+                if (filename.endsWith(".pdf")) {
+                    contentType = "application/pdf";
+                }
 
-            String contentType = "application/octet-stream";
-            if (filename.endsWith(".pdf")) {
-                contentType = "application/pdf";
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .body(resource);
             }
+            return ResponseEntity.notFound().build();
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .body(resource);
-        }catch(IOException e) {
+
+        }catch(Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
@@ -91,13 +105,13 @@ public class FileController implements FileApi {
                 return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Seuls les fichiers PDF sont acceptés.");
             }
 
-            Path uploadPath = Paths.get(UPLOAD_DIR+"OWNER_"+owner+"/PROPERTY_"+property+"/TENANT_"+tenant+"/contracts/"+System.currentTimeMillis());
+            Path uploadPath = Paths.get(Constantes.UPLOAD_DIR+"OWNER_"+owner+"/PROPERTY_"+property+"/TENANT_"+tenant+"/contracts/"+System.currentTimeMillis());
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
             // Enregistre le fichier sur le disque
-            Path filePath = uploadPath.resolve(file.getOriginalFilename());
+            Path filePath = uploadPath.resolve(file.getOriginalFilename().trim());
             Files.write(filePath, file.getBytes());
 
             return ResponseEntity.status(HttpStatus.OK).body(filePath.toString());
@@ -107,4 +121,21 @@ public class FileController implements FileApi {
         }
     }
 
+    @Override
+    @PostMapping("/uploadProfilePicture/{userId}")
+    public ResponseEntity<String> uploadProfilePicture(@PathVariable Long userId, @RequestParam MultipartFile file) {
+
+        if (file.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Fichier vide !");
+        }
+        if (!file.getContentType().startsWith("image/")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Le fichier doit être une image !");
+        }
+
+        String frontendPath = fileService.saveProfilePicture(file, userId);
+        if(frontendPath != null)
+            return ResponseEntity.ok("Image sauvegardée avec succès : " + frontendPath);
+        //return ResponseEntity.ok(Map.of("profilePicture", frontendPath));
+        return ResponseEntity.badRequest().build();
+    }
 }

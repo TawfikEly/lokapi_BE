@@ -101,7 +101,71 @@ paths:
                   message:
                     type: string
 
+  /file/uploadProfilePicture/{userId}:
+    post:
+      tags:
+        - file
+      summary: Upload picture for profile
+      operationId: uploadProfilePicture
+      parameters:
+        - name: userId
+          in: path
+          description: 'Id of the user connected'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Le fichier IMAGE à uploader.
+              required:
+                - file
+      responses:
+        default:
+          description: Fichier uploadé avec succès
+          content:
+            application/json:
+              schema:
+                type: string
 
+        '400':
+          description: Aucun fichier sélectionné ou mauvaise requête
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Aucun fichier sélectionné.
+        '415':
+          description: Mauvais type de fichier
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Seuls les fichiers PDF sont acceptés.
+        '500':
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Erreur lors de l'enregistrement du fichier.
   /file/upload:
     post:
       tags:
@@ -594,6 +658,37 @@ paths:
           description: Invalid email supplied
         '404':
           description: User not found
+
+  /users/change-password:
+    post:
+      tags:
+        - user
+      summary: Change password for the authenticated user
+      description: Allows an authentificated user to update their password
+      operationId: changePassword
+      requestBody:
+          required: true
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ChangePassword'
+      responses:
+        '200':
+          description: Password updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Mot de passe changé avec succès."
+        '400':
+          description: Invalid input (e.g., passwords do not match or current password is incorrect)
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "L'ancien mot de passe est incorrect."
+                #$ref: '#/components/schemas/UserMessageResponse'
+
 
   /properties:
     get:
@@ -1150,6 +1245,7 @@ paths:
 
 
 
+
 components:
   schemas:
     UserMessageResponse:
@@ -1216,6 +1312,18 @@ components:
         password:
           type: string
           example: '12345'
+        firstname:
+          type: string
+          example: 'John'
+        lastname:
+          type: string
+          example: 'Doe'
+        profilePicture:
+          type: string
+          example: '/assets/User_1/1.png'
+        phone:
+          type: string
+          exemple: '0123456789'
         roles:
           type: array
           items:
@@ -1271,8 +1379,10 @@ components:
           description: Property description
         owner:
           $ref: '#/components/schemas/User'
-        lease:
-          $ref: '#/components/schemas/Lease'
+        leases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lease'
         price:
           type: number
           format: decimal
@@ -1404,5 +1514,18 @@ components:
         - paymentStatus
         - creationDate
         - updateDate
+
+    ChangePassword:
+      type: object
+      properties:
+          oldPassword:
+            type: string
+            description: the current password of the user
+          newPassword:
+            type: string
+            description: the new password of the user
+          confirmPassword:
+            type: string
+            description: Confirmation of the new password must be identical of new password
 
 

@@ -45,9 +45,6 @@ public class Property {
     @Column(name = "delete_date",nullable = true)
     private LocalDate deleteDate;
 
-    @OneToOne(mappedBy = "property")
-    private Lease lease;
-
     @ManyToOne
     @JoinColumn(name="owner_id", nullable = false)
     private User owner;

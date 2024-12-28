@@ -34,6 +34,10 @@ public class User {
     protected String firstname;
     @Column(name ="lastname", nullable = true)
     protected String lastname;
+    @Column(name ="profile_picture", nullable = true)
+    protected String profilePicture;
+    @Column(name ="phone", nullable = true)
+    protected String phone;
 
     @Column(name = "active", nullable = false)
     protected Boolean active;

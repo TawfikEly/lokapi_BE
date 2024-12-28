@@ -16,7 +16,7 @@ public interface IUserService {
 
     User activeUser(User user);
     void activateUser(String token);
-    boolean isUSerActivated(User user);
+    boolean isUSerActivated(UserDTO userDTO);
 
     User desactiveUser(User user);
     List<User> getAllUsers();
@@ -24,7 +24,7 @@ public interface IUserService {
     Optional<UserDTO> findByIdentifier(String identifier);
     UserDTO getUserByEmail(String email);
 
-    Optional<User> getUserByName(String userName);
+    UserDTO  getUserByName(String userName);
     UserDTO updateUserById(Long userId);
     UserDTO updateUser(UserDTO userDTO);
     User deleteUserById(Long userId);
@@ -32,7 +32,8 @@ public interface IUserService {
     //boolean verifyPassword(String email,String password);
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
-
-
     boolean changePassword(String username, ChangePasswordDTO changePasswordDTO);
-}
+
+    UserDTO updateUserProfilePicture(Long userId, String fileUrl) ;
+
+    }

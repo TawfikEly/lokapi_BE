@@ -4,8 +4,6 @@ import be.lokapi.api.FileApi;
 
 import be.lokapi.service.IFileService;
 import be.lokapi.utils.Constantes;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -25,12 +23,10 @@ import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/file")
-//@CrossOrigin(origins = Constantes.HTTP_ORIGIN_FRONT_CHROME) // CORS voir webConfig.java
 public class FileController implements FileApi {
 
 
     private final IFileService fileService;
-
 
     public FileController(IFileService fileService) {
         this.fileService = fileService;
@@ -58,6 +54,8 @@ public class FileController implements FileApi {
         }
 
     }
+
+
 
     @Override
     @GetMapping("/preview")
@@ -123,19 +121,30 @@ public class FileController implements FileApi {
 
     @Override
     @PostMapping("/uploadProfilePicture/{userId}")
-    public ResponseEntity<String> uploadProfilePicture(@PathVariable Long userId, @RequestParam MultipartFile file) {
+    public ResponseEntity<String> uploadProfilePicture(@PathVariable Long userId, @RequestParam("file") MultipartFile file) {
 
         if (file.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Fichier vide !");
         }
-        if (!file.getContentType().startsWith("image/")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Le fichier doit être une image !");
-        }
 
         String frontendPath = fileService.saveProfilePicture(file, userId);
         if(frontendPath != null)
-            return ResponseEntity.ok("Image sauvegardée avec succès : " + frontendPath);
-        //return ResponseEntity.ok(Map.of("profilePicture", frontendPath));
-        return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok(frontendPath);
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erreur lors de l'upload de l'image.");
+    }
+
+    @Override
+    @GetMapping("/loadProfilePicture/{fileName}")
+    public ResponseEntity<Resource> loadProfilePicture(@PathVariable String filename) {
+        try {
+            Resource file = fileService.loadProfilePicture(filename);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(file);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

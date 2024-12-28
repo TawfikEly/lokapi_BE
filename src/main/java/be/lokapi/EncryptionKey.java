@@ -2,7 +2,7 @@ package be.lokapi;
 
 import be.lokapi.utils.EncryptionUtil;
 
-public class Main {
+public class EncryptionKey {
 
     public static void main(String[] args) {
         try {

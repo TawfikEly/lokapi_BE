@@ -1,12 +1,9 @@
 package be.lokapi.controller;
 
 import be.lokapi.api.PropertiesApi;
-import be.lokapi.entity.Property;
-import be.lokapi.mapping.PropertyMapper;
 import be.lokapi.model.GetAddressPropertyByOwnerIdDefaultResponseInnerDTO;
 import be.lokapi.model.PropertyDTO;
 import be.lokapi.service.IPropertyService;
-import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

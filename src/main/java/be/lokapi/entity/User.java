@@ -1,7 +1,6 @@
 package be.lokapi.entity;
 
 import be.lokapi.enums.RolesEnum;
-import be.lokapi.model.RegisterUserRequestDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

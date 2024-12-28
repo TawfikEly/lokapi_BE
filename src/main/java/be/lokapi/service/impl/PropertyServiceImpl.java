@@ -6,7 +6,6 @@ import be.lokapi.model.GetAddressPropertyByOwnerIdDefaultResponseInnerDTO;
 import be.lokapi.model.PropertyDTO;
 import be.lokapi.repository.IPropertyRepository;
 import be.lokapi.service.IPropertyService;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

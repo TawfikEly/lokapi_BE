@@ -23,7 +23,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -167,12 +166,6 @@ public class UserServiceImpl implements IUserService, IActivationTokenService {
             throw new UsernameNotFoundException("L'dentifiant est incorrect, veuillez réessayer.");
         }
 
-        /* } catch (Exception e) {
-            // Gérer les autres types d'exception
-            throw new RuntimeException("Erreur lors de l'authentification. Veuillez réessayer.");
-        }*/
-
-
         try {
             // Charger l'utilisateur après l'authentification réussie
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(authenticateUserRequest.getUsername());
@@ -200,11 +193,8 @@ public class UserServiceImpl implements IUserService, IActivationTokenService {
 
         User user = userMapper.toEntity(newUserDTO);
         User savedUser = userRepository.save(user);
-        UserDTO savedUserDTO = userMapper.toDto(savedUser);
+        return userMapper.toDto(savedUser);
 
-
-
-        return savedUserDTO;
     }
 
 
@@ -239,14 +229,26 @@ public class UserServiceImpl implements IUserService, IActivationTokenService {
         Optional<User> user = userRepository.findUserByEmail(email);
 
         if(!user.isEmpty()) {
-            return userMapper.toDto(user.get());
+            return  userMapper.toDto(user.get());
         }
         return null;
     }
 
     @Override
-    public Optional<User> getUserByName(String userName) {
-        return userRepository.findUserByName(userName);
+    public UserDTO getUserByName(String userName) {
+        Optional<User> user = userRepository.findUserByName(userName);
+        if(!user.isEmpty()) {
+            return userMapper.toDto(user.get());
+        }
+        return null;
+    }
+
+
+    @Override
+    public UserDTO updateUserProfilePicture(Long userId, String fileUrl) {
+       UserDTO userDTO = getUserById(userId);
+       userDTO.setProfilePicture(fileUrl);
+       return updateUser(userDTO);
     }
 
     @Override
@@ -255,17 +257,13 @@ public class UserServiceImpl implements IUserService, IActivationTokenService {
         return updateUser(userDTO);
     }
 
-
-
-
     @Override
     public UserDTO updateUser(UserDTO userDTO) {
         userDTO.setUpdateDate(LocalDate.now());
         User user = userMapper.toEntity(userDTO);
         User userUpdated = userRepository.save(user);
-        UserDTO userDTOUpdated = userMapper.toDto(userUpdated);
+        return  userMapper.toDto(userUpdated);
 
-        return userDTOUpdated;
     }
 
     @Override
@@ -316,6 +314,8 @@ public class UserServiceImpl implements IUserService, IActivationTokenService {
         return true;
     }
 
+
+
     @Override
     public void activateUser(String token) {
         ActivationToken activationToken = (ActivationToken) activationTokenRepository.findByToken(token)
@@ -333,8 +333,8 @@ public class UserServiceImpl implements IUserService, IActivationTokenService {
     }
 
     @Override
-    public boolean isUSerActivated(User user) {
-        return user.getActive();
+    public boolean isUSerActivated(UserDTO userDTO) {
+        return userDTO.getActive();
     }
 
     @Override

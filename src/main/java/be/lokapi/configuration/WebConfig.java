@@ -3,6 +3,7 @@ package be.lokapi.configuration;
 import be.lokapi.utils.Constantes;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
@@ -18,6 +19,12 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods(Constantes.GET, Constantes.POST, Constantes.PUT, Constantes.DELETE, Constantes.OPTIONS) //méthodes autoriséés
                 .allowedHeaders("*") // Autoriser tout les headers
                 .allowCredentials(true); // Autorise les cookies/sessions partagé
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/picturesProfiles/**")
+                .addResourceLocations("file:../frontend/assets/picturesProfiles/");
     }
 }
 

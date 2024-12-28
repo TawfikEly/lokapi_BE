@@ -55,6 +55,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/file/preview/uploads/**").permitAll() // Permettre l'accès à toutes les URL dynamiques de type /api/file/preview/uploads/...
                         .requestMatchers("/api/file/download/**").permitAll()
                         .requestMatchers("/api/file/uploadProfilePicture/**").permitAll()
+                        .requestMatchers("/api/file/loadProfilePicture/**").permitAll()
+
 
                         .anyRequest().authenticated() // Toutes les autres requêtes nécessitent une authentification
                 )

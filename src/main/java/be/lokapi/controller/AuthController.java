@@ -3,7 +3,6 @@ package be.lokapi.controller;
 
 import be.lokapi.api.AuthApi;
 import be.lokapi.entity.ActivationToken;
-import be.lokapi.entity.User;
 import be.lokapi.exceptions.EmailAlreadyExistsException;
 import be.lokapi.exceptions.UsernameAlreadyExistsException;
 import be.lokapi.mapping.UserMapper;
@@ -100,17 +99,16 @@ public class AuthController  implements AuthApi {
         try {
             AuthToken jwt = userService.authenticateUser(AuthenticateUserRequest.fromDTO(authenticateUserRequestDTO));
             if (jwt != null) {
-                Optional<User> user = userService.getUserByName(jwt.getUser().getUsername());
-                if (!userService.isUSerActivated(user.get())) {
+                UserDTO userDTO = userService.getUserByName(jwt.getUser().getUsername());
+                if (!userService.isUSerActivated(userDTO)) {
                     // Cas où l'authentification échoué (si le le user n'est pas encore actif)
                     AuthTokenDTO authTokenDTO = new AuthTokenDTO("", "Votre compte n'est pas actif verifiez vos mails et activez votre compte", null);
                     return ResponseEntity.badRequest().body(authTokenDTO);
                 } else {
                     Map<String, Object> response = new HashMap<>();
                     response.put("token", jwt.getToken());
-                    response.put("user", Map.of("username", user.get().getUsername(), "email", user.get().getEmail()));
+                    response.put("user", Map.of("username", userDTO.getUsername(), "email", userDTO.getEmail()));
 
-                    UserDTO userDTO = new UserDTO(user.get().getId(), user.get().getUsername(), user.get().getEmail(), user.get().getPassword(), userMapper.mapRoles(user.get().getRoles()));
                     AuthTokenDTO authTokenDTO = new AuthTokenDTO(response.get("token").toString(), "User registered successfully", userDTO);
                     return ResponseEntity.ok(authTokenDTO);
                 }

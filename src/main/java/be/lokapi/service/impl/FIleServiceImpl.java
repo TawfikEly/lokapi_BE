@@ -1,10 +1,12 @@
 package be.lokapi.service.impl;
 
-import be.lokapi.entity.User;
+
 import be.lokapi.model.UserDTO;
 import be.lokapi.service.IFileService;
 import be.lokapi.service.IUserService;
 import be.lokapi.utils.Constantes;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +22,7 @@ public class FIleServiceImpl implements IFileService {
 
     private final IUserService userService;
 
+
     public FIleServiceImpl(IUserService userService) {
         this.userService = userService;
     }
@@ -27,32 +30,46 @@ public class FIleServiceImpl implements IFileService {
 
     @Override
     public String saveProfilePicture(MultipartFile file, Long userId) {
-        String uploadDir = Constantes.UPLOAD_DIR_FRONT+"/User_" + userId;
         try {
             // Créer le répertoire utilisateur s'il n'existe pas
-            String userFolder = Constantes.UPLOAD_DIR_FRONT + "/User_" + userId;
+            String userFolder = Constantes.UPLOAD_DIR_FRONT+"/User_" + userId;
+            String fileName = "user_" + userId +".jpg";
+            Path profilePicturesDir = Paths.get(userFolder);
+
             File directory = new File(userFolder);
             if (!directory.exists()) {
                 directory.mkdirs();
             }
 
             // Sauvegarder le fichier dans le répertoire utilisateur
-            String fileName = userId + ".jpeg"; // Vous pouvez utiliser d'autres extensions selon le fichier
-            //  Path filePath = Paths.get(userFolder, fileName);
-            //  Files.write(filePath, file.getBytes());
+            Path filePath = profilePicturesDir.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            Path frontendPath = Paths.get(userFolder, fileName);
-            Files.copy(frontendPath, frontendPath, StandardCopyOption.REPLACE_EXISTING);
             UserDTO user = userService.getUserById(userId);
-            user.setProfilePicture(frontendPath.toString());
+            String path = filePath.toString().substring("../frontend/assets/".length());
+            System.out.println(path);
+            user.setProfilePicture(path);
             userService.updateUser(user);
-            return frontendPath.toString();
+            return filePath.toString();
 
 
         } catch (IOException e) {
-            e.printStackTrace();
-            return "";
+            throw new RuntimeException("Erreur lors de la sauvegarde de l'image.", e);
+        }
+    }
 
+    @Override
+    public Resource loadProfilePicture(String filename) {
+        try {
+            Path filePath = Paths.get(Constantes.UPLOAD_DIR_FRONT).resolve(filename).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if(resource.exists()){
+                return resource;
+            }else{
+                throw new RuntimeException("Fichier introuvable.");
+            }
+        }catch (Exception e){
+            throw new RuntimeException("Erreur lors du chargement de l'image.", e);
         }
     }
 }

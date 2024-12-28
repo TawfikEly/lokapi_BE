@@ -166,6 +166,34 @@ paths:
                   message:
                     type: string
                     example: Erreur lors de l'enregistrement du fichier.
+  /file/loadProfilePicture/{filename}:
+    get:
+      tags:
+        - file
+      summary: Get picture profile
+      operationId: loadProfilePicture
+      parameters:
+        - name: filename
+          in: path
+          description: 'filename of the picture s user connected'
+          required: true
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: picture was successfully streamed for preview.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+              example: "Binary content for preview"
+        '404':
+          description: File not found on the server.
+        '500':
+          description: Server error while processing the file.
+
   /file/upload:
     post:
       tags:

@@ -2,7 +2,6 @@ package be.lokapi.entity;
 
 
 
-import be.lokapi.model.LeaseDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

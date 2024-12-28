@@ -94,9 +94,9 @@ public class UserController implements UsersApi {
     @Override
     @GetMapping("/getUserByName/{username}")
     public ResponseEntity<UserDTO> getUserByName(String username) {
-        Optional<User> user  = userService.getUserByName(username);
-        if (user !=  null)
-            return ResponseEntity.ok().build();
+        UserDTO userDTO  = userService.getUserByName(username);
+        if (userDTO !=  null)
+            return ResponseEntity.ok(userDTO);
         return ResponseEntity.badRequest().build();
     }
 

@@ -49,11 +49,6 @@ public class PersistenceConfig {
         properties.setProperty("hibernate.show_sql", "true");
         properties.setProperty("hibernate.format_sql", "true");
 
-
-        //em.getJpaPropertyMap().put("hibernate.show_sql", true);
-        //em.getJpaPropertyMap().put("hibernate.format_sql", true);
-
-
         em.setJpaProperties(properties);
 
         return em;

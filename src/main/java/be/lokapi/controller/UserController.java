@@ -7,12 +7,10 @@ import be.lokapi.model.ChangePasswordDTO;
 import be.lokapi.model.UserDTO;
 import be.lokapi.service.ILeaseService;
 import be.lokapi.service.IUserService;
-import be.lokapi.utils.JwtTokenUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 

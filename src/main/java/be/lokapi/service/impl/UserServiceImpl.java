@@ -250,18 +250,22 @@ public class UserServiceImpl implements IUserService, IActivationTokenService {
     }
 
     @Override
-    public User updateUserById(Long userId) {
+    public UserDTO updateUserById(Long userId) {
         UserDTO userDTO = getUserById(userId);
         return updateUser(userDTO);
     }
 
 
+
+
     @Override
-    public User updateUser(UserDTO userDTO) {
+    public UserDTO updateUser(UserDTO userDTO) {
         userDTO.setUpdateDate(LocalDate.now());
         User user = userMapper.toEntity(userDTO);
+        User userUpdated = userRepository.save(user);
+        UserDTO userDTOUpdated = userMapper.toDto(userUpdated);
 
-        return userRepository.save(user);
+        return userDTOUpdated;
     }
 
     @Override
@@ -288,6 +292,28 @@ public class UserServiceImpl implements IUserService, IActivationTokenService {
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
 
+    }
+
+    @Override
+    public boolean changePassword(String username, ChangePasswordDTO changePasswordDTO) {
+        User user = userRepository.findUserByName(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé"));
+
+
+
+        if(!passwordEncoder.matches(changePasswordDTO.getOldPassword(),user.getPassword())){
+            throw new IllegalArgumentException("Ancien mot de passe incorrect");
+        }
+        // Vérifiez si le nouveau mot de passe correspond à la confirmation
+        if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("Le nouveau mot de passe et la confirmation ne correspondent pas");
+        }
+
+        String encodedPassword = passwordEncoder.encode(changePasswordDTO.getNewPassword());
+
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+        return true;
     }
 
     @Override

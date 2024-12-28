@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class LeaseServiceImpl implements ILeaseService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(LeaseServiceImpl.class);
     private ILeaseRepository leaseRepository;
     private final UserMapper userMapper;
     private final LeaseMapper leaseMapper;

@@ -47,6 +47,8 @@ public class LeaseMapperUtil {
             tenantDTO.setPassword(lease.getTenant().getPassword());
             tenantDTO.setFirstname(lease.getTenant().getFirstname());
             tenantDTO.setLastname(lease.getTenant().getLastname());
+            tenantDTO.setPhone(lease.getTenant().getPhone());
+            tenantDTO.setProfilePicture(lease.getTenant().getProfilePicture());
             tenantDTO.setCreationDate(lease.getTenant().getCreationDate());
             tenantDTO.setUpdateDate(lease.getTenant().getUpdateDate());
             tenantDTO.setActive(lease.getTenant().getActive());
@@ -70,6 +72,8 @@ public class LeaseMapperUtil {
             ownerDTO.setPassword(lease.getOwner().getPassword());
             ownerDTO.setFirstname(lease.getOwner().getFirstname());
             ownerDTO.setLastname(lease.getOwner().getLastname());
+            ownerDTO.setPhone(lease.getOwner().getPhone());
+            ownerDTO.setProfilePicture(lease.getOwner().getProfilePicture());
             ownerDTO.setCreationDate(lease.getOwner().getCreationDate());
             ownerDTO.setUpdateDate(lease.getOwner().getUpdateDate());
             ownerDTO.setActive(lease.getOwner().getActive());
@@ -114,6 +118,8 @@ public class LeaseMapperUtil {
         ownerDTO.setPassword(owner.getPassword());
         ownerDTO.setFirstname(owner.getFirstname());
         ownerDTO.setLastname(owner.getLastname());
+        ownerDTO.setPhone(owner.getPhone());
+        ownerDTO.setProfilePicture(owner.getProfilePicture());
         ownerDTO.setCreationDate(owner.getCreationDate());
         ownerDTO.setUpdateDate(owner.getUpdateDate());
         ownerDTO.setActive(owner.getActive());

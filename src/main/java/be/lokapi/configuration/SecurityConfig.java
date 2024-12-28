@@ -2,6 +2,7 @@ package be.lokapi.configuration;
 
 import be.lokapi.service.CustomUserDetailsService;
 import be.lokapi.utils.Constantes;
+import be.lokapi.utils.JwtRequestFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -37,22 +39,26 @@ public class SecurityConfig {
     }
     //Configuration de la sécurité HTTP
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception{
         http
                 .csrf(csrf -> csrf.disable()) // Désactiver CSRF pour l'instant
                 .cors(Customizer.withDefaults()) // Activer CORS
                 //.cors(cors -> cors.configurationSource(corsConfigurationSource())) // Associe la configuration CORS
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/auth/**").permitAll() // Permettre l'accès public aux routes d'authentification
-                        .requestMatchers("/api/auth/infoUser/**").permitAll() // Permettre l'accès public aux routes d'authentification
+                        .requestMatchers("/api/users/change-password").authenticated()
+                        .requestMatchers("/api/auth/infoUser/**").permitAll()
                         .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/api/properties/**").permitAll()
                         .requestMatchers("/api/leases/**").permitAll()
                         .requestMatchers("/api/file/**").permitAll()
                         .requestMatchers("/api/file/preview/uploads/**").permitAll() // Permettre l'accès à toutes les URL dynamiques de type /api/file/preview/uploads/...
                         .requestMatchers("/api/file/download/**").permitAll()
+                        .requestMatchers("/api/file/uploadProfilePicture/**").permitAll()
+
                         .anyRequest().authenticated() // Toutes les autres requêtes nécessitent une authentification
                 )
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form -> form
                         .loginPage("/login") // Page de connexion personnalisée
                         .permitAll()
@@ -61,6 +67,8 @@ public class SecurityConfig {
         return http.build();
 
     }
+
+
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
@@ -84,20 +92,5 @@ public class SecurityConfig {
         return source;
 
     }
-    /*
-    @Bean
-    public FilterRegistrationBean<CorsFilter> simpleCorsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowCredentials(true);
-        configuration.addAllowedOrigin("*");
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", configuration);
-        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return bean;
-    }*/
-
 
 }

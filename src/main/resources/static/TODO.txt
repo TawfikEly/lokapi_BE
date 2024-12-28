@@ -1,6 +1,6 @@
 TODO List
 
-- ameliorer la page contrat detail ajouter les valeur manquante
+- Creer une page de profile (toutes les info du user connecté, modification de mots de passe voir si peux mettre photo de profile etc... )
 - ajouter sur la page detail tenant un bouton pour envoyer un mail
 - verifier la page tenant si complet
 - analyser concept de notification ( mail ou autre )

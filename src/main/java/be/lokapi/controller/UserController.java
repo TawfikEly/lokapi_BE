@@ -3,12 +3,20 @@ package be.lokapi.controller;
 
 import be.lokapi.api.UsersApi;
 import be.lokapi.entity.User;
+import be.lokapi.model.ChangePasswordDTO;
 import be.lokapi.model.UserDTO;
 import be.lokapi.service.ILeaseService;
 import be.lokapi.service.IUserService;
+import be.lokapi.utils.JwtTokenUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +32,8 @@ public class UserController implements UsersApi {
         this.userService = userService;
         this.leaseService = leaseService;
     }
+
+
 
     @Override
     @PostMapping("/register")
@@ -92,15 +102,12 @@ public class UserController implements UsersApi {
         return ResponseEntity.badRequest().build();
     }
 
-
-
-
     @Override
-    @PutMapping("/updateUser/{user}")
-    public ResponseEntity<UserDTO> updateUser(UserDTO userDTO) {
-        User user = userService.updateUser(userDTO);
-        if (user !=  null)
-            return ResponseEntity.ok().build();
+    @PutMapping("/updateUser")
+    public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO) {
+        UserDTO userDTOUpdated = userService.updateUser(userDTO);
+        if (userDTOUpdated !=  null)
+            return ResponseEntity.ok(userDTOUpdated);
 
         return ResponseEntity.badRequest().build();
     }
@@ -108,11 +115,36 @@ public class UserController implements UsersApi {
     @Override
     @PutMapping("/updateUserById/{userId}")
     public ResponseEntity<UserDTO> updateUserById(Long userId) {
-        User user = userService.updateUserById(userId);
-        if (user !=  null)
-            return ResponseEntity.ok().build();
+        UserDTO userDTO = userService.updateUserById(userId);
+        if (userDTO !=  null)
+            return ResponseEntity.ok(userDTO);
 
         return ResponseEntity.badRequest().build();
+    }
+
+
+    @Override
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestBody @Valid ChangePasswordDTO changePasswordDTO) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getName().equals("anonymousUser")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Utilisateur non authentifié.");
+        }
+        if (authentication instanceof AnonymousAuthenticationToken){
+            throw new IllegalStateException("Utilisateur non authentifié");
+        }
+
+        String username = authentication.getName();
+        boolean success = userService.changePassword(username, changePasswordDTO);
+
+        if(success){
+            return ResponseEntity.ok("Mot de passe changé avec succès.");
+        }else{
+            return ResponseEntity.badRequest().body("L'ancien mot de passe est incorrect.");
+        }
     }
 
 

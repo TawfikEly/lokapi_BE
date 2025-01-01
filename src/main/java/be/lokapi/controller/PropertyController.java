@@ -31,6 +31,10 @@ public class PropertyController implements PropertiesApi {
         return ResponseEntity.badRequest().build();
     }
 
+    @Override
+    public ResponseEntity<PropertyDTO> deleteProperty(PropertyDTO propertyDTO) {
+        return null;
+    }
 
 
     @Override
@@ -62,6 +66,8 @@ public class PropertyController implements PropertiesApi {
             return ResponseEntity.badRequest().build();
     }
 
+
+
     @Override
     @GetMapping("/getPropertyByOwnerId/{ownerId}")
     public ResponseEntity<List<PropertyDTO>> getPropertyByOwnerId(@PathVariable Long ownerId) {
@@ -82,19 +88,33 @@ public class PropertyController implements PropertiesApi {
         return ResponseEntity.noContent().build();
     }
 
+
     @Override
-    public ResponseEntity<PropertyDTO> updateProperty(Long propertyId) {
-        PropertyDTO propertyDTO = propertyService.updatePropertyById(propertyId);
-        if (propertyDTO!=null)
-            return ResponseEntity.ok(propertyDTO);
+    @PutMapping("/updatePropertyById/{propertyId}")
+    public ResponseEntity<PropertyDTO> updatePropertyById(@PathVariable Long propertyId) {
+        PropertyDTO propertyDTOUpdated = propertyService.updatePropertyById(propertyId);
+        if (propertyDTOUpdated!=null)
+            return ResponseEntity.ok(propertyDTOUpdated);
         return ResponseEntity.badRequest().build();
     }
+
     @Override
-    public ResponseEntity<PropertyDTO> deleteProperty(Long propertyId) {
-        PropertyDTO propertyDTO = propertyService.deletePropertyById(propertyId);
-        if (propertyDTO!=null)
-            return ResponseEntity.ok(propertyDTO);
+    @PutMapping("/updateProperty")
+    public ResponseEntity<PropertyDTO> updateProperty(@RequestBody PropertyDTO propertyDTO) {
+        PropertyDTO propertyDTOUpdated = propertyService.updateProperty(propertyDTO);
+        if (propertyDTOUpdated!=null)
+            return ResponseEntity.ok(propertyDTOUpdated);
         return ResponseEntity.badRequest().build();
+    }
+
+
+
+
+    @Override
+    @DeleteMapping("/deletePropertyById/{propertyId}")
+    public ResponseEntity<Void> deletePropertyById(@PathVariable Long propertyId) {
+        propertyService.deletePropertyById(propertyId);
+        return ResponseEntity.ok(null);
     }
 
 

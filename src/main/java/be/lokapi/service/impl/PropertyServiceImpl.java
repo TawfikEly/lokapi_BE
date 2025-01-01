@@ -89,27 +89,29 @@ public class PropertyServiceImpl implements IPropertyService {
 
 
     @Override
-    public Property updateProperty(Property property) {
-        property.setUpdateDate(LocalDate.now());
-        return propertyRepository.save(property);
+    public PropertyDTO updateProperty(PropertyDTO propertyDTO) {
+        propertyDTO.setUpdateDate(LocalDate.now());
+        Property property = propertyMapper.toEntity(propertyDTO);
+        Property propertyUpdated = propertyRepository.save(property);
+        return  propertyMapper.toDto(propertyUpdated);
     }
     @Override
     public PropertyDTO updatePropertyById(Long propertyId) {
         PropertyDTO propertyDTO = getPropertyById(propertyId);
-        Property property = propertyMapper.toEntity(propertyDTO);
-        return propertyMapper.toDto(updateProperty(property));
+        return updateProperty(propertyDTO);
     }
     @Override
-    public Property deleteProperty(Property property) {
-        property.setUpdateDate(LocalDate.now());
-        property.setDeleteDate(LocalDate.now());
-        return propertyRepository.save(property);
+    public void deleteProperty(PropertyDTO propertyDTO) {
+        propertyDTO.setUpdateDate(LocalDate.now());
+        propertyDTO.setDeleteDate(LocalDate.now());
+        Property property = propertyMapper.toEntity(propertyDTO);
+        propertyRepository.delete(property);
+
     }
 
     @Override
-    public PropertyDTO deletePropertyById(Long propertyId) {
+    public void deletePropertyById(Long propertyId) {
         PropertyDTO propertyDTO = getPropertyById(propertyId);
-        Property property = propertyMapper.toEntity(propertyDTO);
-        return propertyMapper.toDto(deleteProperty(property));
+        deleteProperty(propertyDTO);
     }
 }

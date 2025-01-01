@@ -19,9 +19,9 @@ public interface IPropertyService {
 
     PropertyDTO updatePropertyById(Long propertyId);
 
-    PropertyDTO deletePropertyById(Long propertyId);
-    public Property updateProperty(Property property);
-    public Property deleteProperty(Property property);
+    void deletePropertyById(Long propertyId);
+    public PropertyDTO updateProperty(PropertyDTO propertyDTO);
+    void deleteProperty(PropertyDTO propertyDTO);
 
     PropertyDTO getPropertyWithLeaseById(Long propertyId);
 }

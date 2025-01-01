@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/infoUser/**").permitAll()
                         .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/api/properties/**").permitAll()
+                        .requestMatchers("/api/properties/deletePropertyById/**").permitAll()
                         .requestMatchers("/api/leases/**").permitAll()
                         .requestMatchers("/api/file/**").permitAll()
                         .requestMatchers("/api/file/preview/uploads/**").permitAll() // Permettre l'accès à toutes les URL dynamiques de type /api/file/preview/uploads/...

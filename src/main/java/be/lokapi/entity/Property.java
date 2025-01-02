@@ -1,7 +1,5 @@
 package be.lokapi.entity;
 
-
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +16,7 @@ import java.util.List;
 @Table(name = "property")
 @Getter
 @Setter
+
 public class Property {
 
     @Id
@@ -35,6 +34,13 @@ public class Property {
     @Column(nullable = false)
     private BigDecimal price;
 
+    @ManyToOne
+    @JoinColumn(name="owner_id", nullable = false)
+    private User owner;
+
+    @OneToMany(mappedBy = "property")
+    private List<Lease> leases = new ArrayList<>();
+
     @CreatedDate
     @Column(name = "creation_date",nullable = false, updatable = false)
     private LocalDate creationDate;
@@ -43,13 +49,5 @@ public class Property {
     private LocalDate updateDate;
     @Column(name = "delete_date",nullable = true)
     private LocalDate deleteDate;
-
-    @ManyToOne
-    @JoinColumn(name="owner_id", nullable = false)
-    private User owner;
-
-    @OneToMany(mappedBy = "property")
-    private List<Lease> leases = new ArrayList<>();
-
 
 }

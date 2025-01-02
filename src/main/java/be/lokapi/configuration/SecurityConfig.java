@@ -1,5 +1,6 @@
 package be.lokapi.configuration;
 
+import be.lokapi.enums.RolesEnum;
 import be.lokapi.service.CustomUserDetailsService;
 import be.lokapi.utils.Constantes;
 import be.lokapi.utils.JwtRequestFilter;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -52,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/properties/**").permitAll()
                         .requestMatchers("/api/properties/deletePropertyById/**").permitAll()
                         .requestMatchers("/api/leases/**").permitAll()
+                        .requestMatchers("/api/leases/deleteLease/**").hasRole(RolesEnum.OWNER.name())
                         .requestMatchers("/api/file/**").permitAll()
                         .requestMatchers("/api/file/preview/uploads/**").permitAll() // Permettre l'accès à toutes les URL dynamiques de type /api/file/preview/uploads/...
                         .requestMatchers("/api/file/download/**").permitAll()

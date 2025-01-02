@@ -1,6 +1,7 @@
 package be.lokapi.mapping;
 
 import be.lokapi.entity.Lease;
+import be.lokapi.entity.Property;
 import be.lokapi.entity.User;
 import be.lokapi.model.LeaseDTO;
 import be.lokapi.model.PropertyDTO;
@@ -19,6 +20,92 @@ public class LeaseMapperUtil {
         this.userMapper = userMapper;
     }
 
+    public Lease toEntity(LeaseDTO leaseDTO){
+        if (leaseDTO == null) {
+            return null;
+        }
+
+        Lease lease = new Lease();
+        lease.setId(leaseDTO.getId());
+        lease.setStartDate(leaseDTO.getStartDate());
+        lease.setEndDate(leaseDTO.getEndDate());
+        lease.setRentAmount(leaseDTO.getRentAmount());
+        lease.setDepositAmount(leaseDTO.getDepositAmount());
+        lease.setContract(leaseDTO.getContract());
+        lease.setCreationDate(leaseDTO.getCreationDate());
+        lease.setUpdateDate(leaseDTO.getUpdateDate());
+        lease.setDeleteDate(leaseDTO.getDeleteDate());
+
+
+        User tenant = new User();
+        if (leaseDTO.getTenant() != null) {
+            tenant.setId(leaseDTO.getTenant().getId());
+            tenant.setUsername(leaseDTO.getTenant().getUsername());
+            tenant.setEmail(leaseDTO.getTenant().getEmail());
+            tenant.setPassword(leaseDTO.getTenant().getPassword());
+            tenant.setFirstname(leaseDTO.getTenant().getFirstname());
+            tenant.setLastname(leaseDTO.getTenant().getLastname());
+            tenant.setPhone(leaseDTO.getTenant().getPhone());
+            tenant.setProfilePicture(leaseDTO.getTenant().getProfilePicture());
+            tenant.setCreationDate(leaseDTO.getTenant().getCreationDate());
+            tenant.setUpdateDate(leaseDTO.getTenant().getUpdateDate());
+            tenant.setActive(leaseDTO.getTenant().getActive());
+            tenant.setCreationDate(leaseDTO.getTenant().getCreationDate());
+            tenant.setDeleteDate(leaseDTO.getTenant().getDeleteDate());
+            tenant.setRoles(
+                    leaseDTO.getTenant().getRoles()
+                            .stream()
+                            .map(role -> be.lokapi.enums.RolesEnum.valueOf(role.name()))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        User owner =  new User();;
+        if (leaseDTO.getOwner() != null) {
+            owner.setId(leaseDTO.getOwner().getId());
+            owner.setUsername(leaseDTO.getOwner().getUsername());
+            owner.setEmail(leaseDTO.getOwner().getEmail());
+            owner.setPassword(leaseDTO.getOwner().getPassword());
+            owner.setFirstname(leaseDTO.getOwner().getFirstname());
+            owner.setLastname(leaseDTO.getOwner().getLastname());
+            owner.setPhone(leaseDTO.getOwner().getPhone());
+            owner.setProfilePicture(leaseDTO.getOwner().getProfilePicture());
+            owner.setCreationDate(leaseDTO.getOwner().getCreationDate());
+            owner.setUpdateDate(leaseDTO.getOwner().getUpdateDate());
+            owner.setActive(leaseDTO.getOwner().getActive());
+            owner.setCreationDate(leaseDTO.getOwner().getCreationDate());
+            owner.setDeleteDate(leaseDTO.getOwner().getDeleteDate());
+            owner.setRoles(
+                    leaseDTO.getOwner().getRoles()
+                            .stream()
+                            .map(role -> be.lokapi.enums.RolesEnum.valueOf(role.name()))
+                            .collect(Collectors.toList())
+            );
+            Property property = null;
+            if (leaseDTO.getProperty() != null) {
+                property = new Property();
+                property.setId(leaseDTO.getProperty().getId());
+                property.setAddress(leaseDTO.getProperty().getAddress());
+                property.setCity(leaseDTO.getProperty().getCity());
+                property.setZip(leaseDTO.getProperty().getZip());
+                property.setPrice(leaseDTO.getProperty().getPrice());
+                property.setDescription(leaseDTO.getProperty().getDescription());
+                property.setOwner(userMapper(leaseDTO.getProperty().getOwner())); // a verifier si c'est bon
+                property.setLeases(leaseDTO.getProperty().getLeases().stream().map(leaseMapper::toEntity).collect(Collectors.toList()));
+                property.setCreationDate(leaseDTO.getProperty().getCreationDate());
+                property.setUpdateDate(leaseDTO.getProperty().getUpdateDate());
+                property.setDeleteDate(leaseDTO.getProperty().getDeleteDate());
+            }
+
+            lease.setTenant(tenant);
+            lease.setOwner(owner);
+            lease.setProperty(property);
+
+
+        }
+
+        return lease;
+    }
     public  LeaseDTO toDto(Lease lease) {
         if (lease == null) {
             return null;
@@ -133,6 +220,32 @@ public class LeaseMapperUtil {
         );
 
         return ownerDTO;
+    }
+
+
+    private User userMapper(UserDTO ownerDTO) {
+        User owner = new User();
+        owner.setId(ownerDTO.getId());
+        owner.setUsername(ownerDTO.getUsername());
+        owner.setEmail(ownerDTO.getEmail());
+        owner.setPassword(ownerDTO.getPassword());
+        owner.setFirstname(ownerDTO.getFirstname());
+        owner.setLastname(ownerDTO.getLastname());
+        owner.setPhone(ownerDTO.getPhone());
+        owner.setProfilePicture(ownerDTO.getProfilePicture());
+        owner.setCreationDate(ownerDTO.getCreationDate());
+        owner.setUpdateDate(ownerDTO.getUpdateDate());
+        owner.setActive(ownerDTO.getActive());
+        owner.setCreationDate(ownerDTO.getCreationDate());
+        owner.setDeleteDate(ownerDTO.getDeleteDate());
+        owner.setRoles(
+                ownerDTO.getRoles()
+                        .stream()
+                        .map(role -> be.lokapi.enums.RolesEnum.valueOf(role.name()))
+                        .collect(Collectors.toList())
+        );
+
+        return owner;
     }
 }
 

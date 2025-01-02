@@ -61,7 +61,7 @@ public class UserController implements UsersApi {
 
     @Override
     @GetMapping("/getUserById/{userId}")
-    public ResponseEntity<UserDTO> getUserById(Long userId) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long userId) {
         UserDTO userDTO  = userService.getUserById(userId);
         if (userDTO !=  null)
             return ResponseEntity.ok(userDTO);
@@ -84,7 +84,7 @@ public class UserController implements UsersApi {
 
     @Override
     @GetMapping("/isUserByIdentifiantRegistered/{existingEmailOrUsername}")
-    public ResponseEntity<Boolean> isUserByIdentifiantRegistered(String existingEmailOrUsername) {
+    public ResponseEntity<Boolean> isUserByIdentifiantRegistered(@PathVariable String existingEmailOrUsername) {
         Optional<UserDTO> user = userService.findByIdentifier(existingEmailOrUsername);
         if (user !=  null)
             return ResponseEntity.ok(true);
@@ -93,7 +93,7 @@ public class UserController implements UsersApi {
 
     @Override
     @GetMapping("/getUserByName/{username}")
-    public ResponseEntity<UserDTO> getUserByName(String username) {
+    public ResponseEntity<UserDTO> getUserByName(@PathVariable String username) {
         UserDTO userDTO  = userService.getUserByName(username);
         if (userDTO !=  null)
             return ResponseEntity.ok(userDTO);
@@ -112,7 +112,7 @@ public class UserController implements UsersApi {
 
     @Override
     @PutMapping("/updateUserById/{userId}")
-    public ResponseEntity<UserDTO> updateUserById(Long userId) {
+    public ResponseEntity<UserDTO> updateUserById(@PathVariable Long userId) {
         UserDTO userDTO = userService.updateUserById(userId);
         if (userDTO !=  null)
             return ResponseEntity.ok(userDTO);
@@ -148,7 +148,7 @@ public class UserController implements UsersApi {
 
     @Override
     @PutMapping("/deleteUser/{user}")
-    public ResponseEntity<UserDTO> deleteUser(UserDTO userDTO) {
+    public ResponseEntity<UserDTO> deleteUser(@RequestBody  UserDTO userDTO) {
 
         User userDeleted = userService.deleteUser(userDTO);
         if (userDeleted !=  null)
@@ -159,7 +159,7 @@ public class UserController implements UsersApi {
 
     @Override
     @PutMapping("/deleteUserById/{userId}")
-    public ResponseEntity<UserDTO> deleteUserById(Long userId) {
+    public ResponseEntity<UserDTO> deleteUserById(@PathVariable Long userId) {
         User user = userService.deleteUserById(userId);
         if (user !=  null)
             return ResponseEntity.ok().build();
@@ -169,7 +169,7 @@ public class UserController implements UsersApi {
 
     @Override
     @GetMapping("/getTenantByOwner/{ownerId}")
-    public ResponseEntity<List<UserDTO>> getTenantByOwner(Long ownerId) {
+    public ResponseEntity<List<UserDTO>> getTenantByOwner(@PathVariable Long ownerId) {
         List<UserDTO> userDTO =  leaseService.getTenantByOwner(ownerId);
         if (userDTO !=  null)
             return ResponseEntity.ok(userDTO);

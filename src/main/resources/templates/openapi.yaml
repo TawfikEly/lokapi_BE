@@ -1027,10 +1027,7 @@ paths:
       responses:
         default:
           description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Lease'
+
 
   /leases/{leaseId}:
     get:
@@ -1054,6 +1051,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Lease'
+    delete:
+      tags:
+        - lease
+      summary: Delete lease by ID
+      description: delete lease.
+      operationId: deleteLeaseById
+      parameters:
+        - name: leaseId
+          in: path
+          description: The ID that needs to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: successful operation
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Lease not found
+
   /leases/{tenantId}:
     get:
       tags:
@@ -1109,6 +1128,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Lease'
+
+
   /leases/{ownerId}:
     get:
       tags:
@@ -1133,6 +1154,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Lease'
+
+
+
+
 
 
 
@@ -1522,10 +1547,7 @@ components:
           type: string
           format: date
           description: Lease update date can be same on creation date
-        deleteDate:
-          type: string
-          format: date
-          description: Lease delete date can be null
+
       required:
         - id
         - property

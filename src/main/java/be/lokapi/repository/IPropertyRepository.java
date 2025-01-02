@@ -13,13 +13,13 @@ import java.util.Optional;
 
 @Repository
 public interface IPropertyRepository extends JpaRepository<Property, Long> {
-    @Query("SELECT p FROM Property p WHERE p.owner.id = :owner_id")
+    @Query("SELECT p FROM Property p WHERE p.owner.id = :owner_id AND p.deleteDate is null")
     List<Property> getPropertyByOwnerId(@Param("owner_id") Long owner_id);
 
-    @Query("SELECT new be.lokapi.model.GetAddressPropertyByOwnerIdDefaultResponseInnerDTO(p.id, p.address, p.city, p.zip) FROM Property p WHERE p.owner.id = :ownerId")
+    @Query("SELECT new be.lokapi.model.GetAddressPropertyByOwnerIdDefaultResponseInnerDTO(p.id, p.address, p.city, p.zip) FROM Property p WHERE p.owner.id = :ownerId AND p.deleteDate is null")
     List<GetAddressPropertyByOwnerIdDefaultResponseInnerDTO>  getAddressPropertyByOwnerId(@Param("ownerId") Long ownerId);
 
-    @Query("SELECT p FROM Property p LEFT JOIN FETCH p.leases WHERE p.id = :propertyId")
+    @Query("SELECT p FROM Property p LEFT JOIN FETCH p.leases WHERE p.id = :propertyId AND p.deleteDate is null")
     Optional<Property> getPropertyWithLeaseById(@Param("propertyId") Long propertyId);
 
 

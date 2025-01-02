@@ -44,7 +44,7 @@ public class LeaseController implements LeasesApi {
     }
 
     @Override
-    @GetMapping("/getLeaseById")
+    @GetMapping("/getLeaseById/{leaseId}")
     public ResponseEntity<LeaseDTO> getLeaseById(Long leaseId) {
         LeaseDTO leaseDTO = leaseService.getLeaseById(leaseId);
         if (leaseDTO !=  null)
@@ -64,7 +64,7 @@ public class LeaseController implements LeasesApi {
 
     @Override
     @GetMapping("/getLeaseByOwnerIdAndTenantId")
-    public ResponseEntity<List<LeaseDTO>> getLeaseByOwnerIdAndTenantId(Long ownerId, Long tenantId) {
+    public ResponseEntity<List<LeaseDTO>> getLeaseByOwnerIdAndTenantId(@PathVariable Long ownerId, @PathVariable Long tenantId) {
         List<Lease> leases = leaseService.getLeaseByOwnerIdAndTenantId(ownerId,tenantId);
         if (leases !=  null || !leases.isEmpty())
             return ResponseEntity.ok().build();
@@ -73,7 +73,7 @@ public class LeaseController implements LeasesApi {
 
     @Override
     @GetMapping("/getLeaseByTenantId")
-    public ResponseEntity<List<LeaseDTO>> getLeaseByTenantId(Long tenantId) {
+    public ResponseEntity<List<LeaseDTO>> getLeaseByTenantId(@PathVariable Long tenantId) {
         List<Lease> leases = leaseService.getLeaseByTenantId(tenantId);
         if (leases !=  null || !leases.isEmpty())
             return ResponseEntity.ok().build();
@@ -82,23 +82,23 @@ public class LeaseController implements LeasesApi {
 
     @Override
     @PutMapping("/updateLease")
-    public ResponseEntity<LeaseDTO> updateLease(LeaseDTO leaseDTO) {
+    public ResponseEntity<LeaseDTO> updateLease(@RequestBody LeaseDTO leaseDTO) {
         LeaseDTO newLeaseDTO = leaseService.updateLease(leaseDTO);
         if (newLeaseDTO !=  null)
             return ResponseEntity.ok(newLeaseDTO);
-
         return ResponseEntity.badRequest().build();
     }
     @Override
-    @PutMapping("/deleteLease")
-    public ResponseEntity<LeaseDTO> deleteLease(LeaseDTO leaseDTO) {
+    @DeleteMapping("/deleteLease")
+    public ResponseEntity<Void> deleteLease(@RequestBody LeaseDTO leaseDTO) {
+        leaseService.deleteLease(leaseDTO);
+        return ResponseEntity.ok().build();
+    }
 
-        LeaseDTO deletedLeaseDTO = leaseService.deleteLease(leaseDTO);
-
-
-        if (leaseDTO !=  null)
-            return ResponseEntity.ok().build();
-
-        return ResponseEntity.badRequest().build();
+    @Override
+    @DeleteMapping("/deleteLeaseById/{leaseId}")
+    public ResponseEntity<Void> deleteLeaseById(@PathVariable Long leaseId) {
+        leaseService.deleteLeaseById(leaseId);
+        return ResponseEntity.ok().build();
     }
 }

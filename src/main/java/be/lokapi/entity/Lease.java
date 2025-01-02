@@ -23,10 +23,20 @@ public class Lease {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
+    @Column(name = "rent_amount", nullable = false)
+    private BigDecimal rentAmount;
+    @Column(nullable = false)
+    private BigDecimal depositAmount;
+    @Column(name = "contract", nullable = false) // fichier pdf path
+    private String contract;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "property_id", nullable = false)
     private Property property;
-
 
     @ManyToOne
     @JoinColumn(name = "tenant_id", nullable = false)
@@ -37,17 +47,8 @@ public class Lease {
     @JoinColumn(name = "owner_id", nullable = false) // Cette annotation mappe la clé étrangère
     private User owner;
 
-
-    @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
-    @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
-    @Column(name = "rent_amount", nullable = false)
-    private BigDecimal rentAmount;
-    @Column(nullable = false)
-    private BigDecimal depositAmount;
-    @Column(name = "contract", nullable = false)
-    private String contract;
+    @OneToMany(mappedBy = "lease")
+    private List<Payment> payments = new ArrayList<>();
 
     @CreatedDate
     @Column(name = "creation_date", nullable = false,updatable = false)
@@ -56,9 +57,6 @@ public class Lease {
     @LastModifiedDate
     @Column(name = "update_date", nullable = false)
     private LocalDate updateDate;
-    @Column(nullable = true)
+    @Column(name = "delete_date",nullable = true)
     private LocalDate deleteDate;
-
-    @OneToMany(mappedBy = "lease")
-    private List<Payment> payments = new ArrayList<>();
 }

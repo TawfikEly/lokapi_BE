@@ -51,7 +51,8 @@ public class LeaseServiceImpl implements ILeaseService {
 
     @Override
     public LeaseDTO getLeaseById(Long leaseId) {
-        return leaseMapper.toDto(leaseRepository.findById(leaseId).orElse(null));
+        Lease lease = leaseRepository.findByIdWithProperty(leaseId).orElse(null);
+        return leaseMapperUtil.toDto(lease);
     }
 
 
@@ -85,18 +86,23 @@ public class LeaseServiceImpl implements ILeaseService {
     public LeaseDTO updateLease(LeaseDTO leaseDTO) {
 
         leaseDTO.setUpdateDate(LocalDate.now());
-        Lease lease = leaseMapper.toEntity(leaseDTO);
+        Lease lease = leaseMapperUtil.toEntity(leaseDTO);
         Lease updatedLease = leaseRepository.save(lease);
-        return  leaseMapper.toDto(updatedLease);
+        return  leaseMapperUtil.toDto(updatedLease);
 
     }
 
     @Override
-    public LeaseDTO deleteLease(LeaseDTO leaseDTO) {
+    public void deleteLease(LeaseDTO leaseDTO) {
         leaseDTO.setUpdateDate(LocalDate.now());
         leaseDTO.setDeleteDate(LocalDate.now());
         Lease lease = leaseMapper.toEntity(leaseDTO);
-        Lease deletedLease = leaseRepository.save(lease);
-        return leaseMapper.toDto(deletedLease);
+        leaseRepository.delete(lease);
+
+    }
+
+    @Override
+    public void deleteLeaseById(Long leaseId) {
+        deleteLease(getLeaseById(leaseId));
     }
 }

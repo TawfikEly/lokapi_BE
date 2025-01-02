@@ -23,5 +23,6 @@ public interface ILeaseService {
 
     LeaseDTO updateLease(LeaseDTO leaseDTO);
 
-    LeaseDTO deleteLease(LeaseDTO leaseDTO);
+    void deleteLease(LeaseDTO leaseDTO);
+    void deleteLeaseById(Long leaseId);
 }

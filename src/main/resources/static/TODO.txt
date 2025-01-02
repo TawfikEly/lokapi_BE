@@ -1,7 +1,12 @@
 TODO List
 
-- Creer une page de profile (toutes les info du user connecté, modification de mots de passe voir si peux mettre photo de profile etc... )
+
+- supprimer lease
+- suprimer un tenant (pas en db ) je dois pas supprimer un tenant si il a un contrat je peux le garder si j'ai pas de contrat a analyser
+
 - ajouter sur la page detail tenant un bouton pour envoyer un mail
-- verifier la page tenant si complet
+- concerpte de message dans l'application meme
 - analyser concept de notification ( mail ou autre )
+- localisation des bien sur carte
+
 
